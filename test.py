@@ -7,14 +7,16 @@ import time
 from synthesizer import Synthesizer
 
 PATH_TO_MODEL = "../model/model.ckpt-200000"
-TEXT_DIR = "test/text"
-SPEECH_DIR = "test/speech"
+RES_DIR = "res"
+text_dir = ""
+speech_dir = ""
 
 synthesizer = Synthesizer()
 
 def work_loop(synthesizer):
+  check_folder()
   while(True):
-    files = os.listdir(TEXT_DIR)
+    files = os.listdir(text_dir)
     if not files:
       print("Text directory empty!")
       time.sleep(5)
@@ -34,28 +36,32 @@ def work_loop(synthesizer):
 def save_wav_file(audio_data):
   timestamp = int(time.time())
   filename = "speech" + str(timestamp) + ".wav"
-  wav_file_path = os.path.join(SPEECH_DIR, filename)
+  wav_file_path = os.path.join(speech_dir, filename)
   wav_file = open(wav_file_path, "wb")
   wav_file.write(audio_data)
   wav_file.close()
   print("Wrote to %s" % wav_file_path)
 
-def synthesize_from_file(file):
-  pass
-
 def get_oldest_file(files):
   now = time.time()
-  relative_path = os.path.join(TEXT_DIR, files[0])
-  abs_path = os.path.abspath(relative_path)
-  oldest = files[0], now - os.path.getctime(abs_path)
+  path = os.path.join(text_dir, files[0])
+  oldest = files[0], now - os.path.getctime(path)
 
   for file in files[1:]:
-    relative_path = os.path.join(TEXT_DIR, file)
-    abs_path = os.path.abspath(relative_path)
-    age = now - os.path.getctime(abs_path)
+    path = os.path.join(text_dir, file)
+    age = now - os.path.getctime(path)
     if age > oldest[1]:
       oldest = file, age
-  return os.path.join(TEXT_DIR, oldest[0])
+  return os.path.join(text_dir, oldest[0])
+
+def check_folder():
+  if not os.path.isdir(RES_DIR):
+    os.mkdir(RES_DIR)
+  if not os.path.isdir(speech_dir):
+    os.mkdir(speech_dir)
+  if not os.path.isdir(text_dir):
+    os.mkdir(text_dir)
+  
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
@@ -69,6 +75,8 @@ if __name__ == '__main__':
   print(hparams_debug_string())
   synthesizer.load(args.checkpoint)
   print("================MODEL LOADED======================")
+  speech_dir = os.path.join(RES_DIR, "speech")
+  text_dir = os.path.join(RES_DIR, "text")
   work_loop(synthesizer)
 else:
   synthesizer.load(os.environ['CHECKPOINT'])
