@@ -22,12 +22,13 @@ def work_loop():
       time.sleep(5)
 
 def save_wav_file(audio_data):
-  filename = "speech" + int(time.time()) + ".wav"
+  timestamp = int(time.time())
+  filename = "speech" + str(timestamp) + ".wav"
   wav_file_path = os.path.join(SPEECH_DIR, filename)
   wav_file = open(wav_file_path, "wb")
   wav_file.write(audio_data)
   wav_file.close()
-  print(f"Wrote to {wav_file_path}")
+  print("Wrote to %s" % wav_file_path)
 
 def synthesize_from_file(file):
   pass
