@@ -31,7 +31,11 @@ def work_loop(synthesizer):
         raise IOError("Failed to read file %s" % text_file_name)
       speech = synthesizer.synthesize(text)
       save_wav_file(speech)
+      text_file.close()
       os.remove(text_file_name)
+      while(os.path.exists(text_file_name)):
+        print("Waiting for removal")
+        time.sleep(1)
 
 def save_wav_file(audio_data):
   timestamp = int(time.time())
@@ -64,6 +68,7 @@ def check_folder():
   
 
 if __name__ == '__main__':
+  print("Hi, I'm main!")
   parser = argparse.ArgumentParser()
   parser.add_argument('--checkpoint', default=PATH_TO_MODEL)
   parser.add_argument('--port', type=int, default=9200)
